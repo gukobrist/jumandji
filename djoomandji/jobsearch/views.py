@@ -34,8 +34,15 @@ class VacanciesSpesialView(View):
                       })
 
 class CompanyView(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'jobsearch/company.html', context={})
+    def get(self, request, id, *args, **kwargs):
+        company = Company.objects.get(id=id)
+        vacancies = company.vacancies.all()
+        print(vacancies)
+        return render(request, 'jobsearch/company.html', context=
+                      {
+                          'company': company,
+                          'vacancies': vacancies,
+                      })
 
 class VacancieView(View):
     def get(self, request, *args, **kwargs):
