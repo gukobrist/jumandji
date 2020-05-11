@@ -1,4 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+
 from jobsearch.models import Company, Specialty, Vacancy
 
 """ Вакансии """
@@ -48,6 +49,7 @@ specialties = [
 
 ]
 
+
 class Command(BaseCommand):
     help = 'This command need for populating bd from data.py file'
 
@@ -58,12 +60,14 @@ class Command(BaseCommand):
 
     def _create_specialties(self):
         for i in specialties:
-            spesialty = Specialty(code=i['code'],title=i['title'])
+            spesialty = Specialty(code=i['code'], title=i['title'])
             spesialty.save()
 
     def _create_vacancies(self):
         for i in jobs:
-            vacancy = Vacancy(title=i['title'], specialty=Specialty.objects.get(code=i['cat']), company=Company.objects.get(name=i['company']), salary_min=i['salary_from'], salary_max=i['salary_to'], published_at=i['posted'], description=i['desc'])
+            vacancy = Vacancy(title=i['title'], specialty=Specialty.objects.get(code=i['cat']),
+                              company=Company.objects.get(name=i['company']), salary_min=i['salary_from'],
+                              salary_max=i['salary_to'], published_at=i['posted'], description=i['desc'])
             vacancy.save()
 
     def handle(self, *args, **kwargs):
