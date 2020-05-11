@@ -33,13 +33,13 @@
       <h2 class="h2 font-weight-normal text-center mb-5">Вакансии по рубрикам</h2>
 
       <div class="row mb-0">
-        {% for i in specialyties %}
+        {% for specialty in specialyties %}
         <div class="col-6 col-md-6 col-lg-3">
           <div class="card pt-4 text-center mb-4">
-            <img class="mx-auto d-block" src="{% get_static_prefix %}{{ i.picture }}" width="80" height="80" alt="">
+            <img class="mx-auto d-block" src="{% get_static_prefix %}{{ specialty.picture }}" width="80" height="80" alt="">
             <div class="card-body">
-              <p class="card-text mb-2">{{ i }}</p>
-              <p class="card-text"><a href="#">5 вакансий</a></p>
+              <p class="card-text mb-2">{{ specialty }}</p>
+              <p class="card-text"><a href="{% url 'special_vacancies' code=specialty.code %}">{{ specialty.vacancies.all.count }} вакансий</a></p>
             </div>
           </div>
         </div>
@@ -50,14 +50,14 @@
     <section class="my-5 pt-3">
       <h2 class="h2 font-weight-normal text-center mb-5">Нам доверяют лучшие компании</h2>
       <div class="row mb-0">
-        {% for i in companies %}
+        {% for company in companies %}
         <div class="col-6 col-md-6 col-lg-3">
           <div class="card pt-4 text-center mb-4">
             <a href="#" style="max-width: 150px;" class="mx-auto d-block">
-              <img class="mx-auto d-block mw-100" src="{% get_static_prefix %}{{ i.logo }}" alt="">
+              <img class="mx-auto d-block mw-100" src="{% get_static_prefix %}{{ company.logo }}" alt="">
             </a>
             <div class="card-body">
-              <p class="card-text"><a href="#">5 вакансий</a></p>
+              <p class="card-text"><a href="{% url 'company' id=company.id %}">{{ company.vacancies.all.count }} вакансий</a></p>
             </div>
           </div>
         </div>

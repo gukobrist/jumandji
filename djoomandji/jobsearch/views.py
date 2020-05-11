@@ -1,12 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.views import View
 from django.http import HttpResponse
+
 from jobsearch.models import Specialty, Company, Vacancy
 
 class MainView(View):
     def get(self, request, *args, **kwargs):
-        specialyties = Specialty.objects.all()
-        companies = Company.objects.all()
+        specialyties = get_list_or_404(Specialty)
+        companies = get_list_or_404(Company)
         return render(request, 'jobsearch/index.html', context=
                       {
                           'specialyties': specialyties,
@@ -16,7 +17,7 @@ class MainView(View):
 class VacanciesView(View):
     def get(self, request, *args, **kwargs):
         title = "Все вакансии"
-        vacancies = Vacancy.objects.all()
+        vacancies = get_list_or_404(Vacancy)
         return render(request, 'jobsearch/vacancies.html', context=
                       {
                           'title': title,
@@ -26,7 +27,7 @@ class VacanciesView(View):
 class VacanciesSpesialView(View):
     def get(self, request, code, *args, **kwargs):
         title = Specialty.objects.get(code=code)
-        vacancies = Vacancy.objects.filter(specialty=title)
+        vacancies = get_list_or_404(Vacancy, specialty=title)
         return render(request, 'jobsearch/vacancies.html', context=
                       {
                           'title': title,
@@ -35,15 +36,22 @@ class VacanciesSpesialView(View):
 
 class CompanyView(View):
     def get(self, request, id, *args, **kwargs):
-        company = Company.objects.get(id=id)
+        company = get_object_or_404(Company, id=id)
         vacancies = company.vacancies.all()
-        print(vacancies)
+        referrer = request.META.get('HTTP_REFERER', '/')
         return render(request, 'jobsearch/company.html', context=
                       {
                           'company': company,
                           'vacancies': vacancies,
+                          'referrer': referrer,
                       })
 
-class VacancieView(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'jobsearch/vacancie.html', context={})
+class VacancyView(View):
+    def get(self, request, id, *args, **kwargs):
+        vacancy = get_object_or_404(Vacancy, id=id)
+        referrer = request.META.get('HTTP_REFERRER', '/')
+        return render(request, 'jobsearch/vacancie.html', context=
+                      {
+                          'vacancy': vacancy,
+                          'referrer': referrer,
+                      })
