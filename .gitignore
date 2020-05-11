@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-.Dc_Store
+.DS_Store
 .idea
 # Distribution / packaging
 .Python
