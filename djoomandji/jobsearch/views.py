@@ -49,7 +49,7 @@ class CompanyView(View):
 class VacancyView(View):
     def get(self, request, id, *args, **kwargs):
         vacancy = get_object_or_404(Vacancy, id=id)
-        referrer = request.META.get('HTTP_REFERRER', '/')
+        referrer = request.META.get('HTTP_REFERER', '/')
         return render(request, 'jobsearch/vacancie.html', context=
                       {
                           'vacancy': vacancy,
