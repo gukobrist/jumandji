@@ -30,8 +30,24 @@
         </ul>
         <ul class="navbar-nav col-2 justify-content-end">
           <li class="nav-item active">
-            <a href="#" class="nav-link font-weight-bold">Вход</a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="nav-link font-weight-bold">Вход</a>
           </li>
+            {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ request.user.first_name }} {{ request.user.last_name }}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="#">Профиль</a>
+            <a class="dropdown-item" href="#">Резюме</a>
+            <a class="dropdown-item" href="{% url 'my_company' %}">Компания</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+            </div>
+          </li>
+            {% endif %}
+
         </ul>
       </div>
     </nav>

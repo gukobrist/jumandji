@@ -6,14 +6,14 @@
 {% load static %}
   <main class="container mt-3">
     <div class="navbar mt-5">
-      <p><a href="{{ referrer }}">Назад</a></p>
+      <p><a href="{{ request.META.HTTP_REFERER }}">Назад</a></p>
     </div>
     <section>
       <div class="text-center">
-        <img src="{% get_static_prefix %}{{ company.logo }}" width="130" height="80" alt="">
+        <img src="{{ company.logo.url }}" width="130" height="80" alt="">
       </div>
       <h1 class="h1 text-center mx-auto mt-0 pt-1" style="font-size: 70px;"><strong>{{ company.name }}</strong></h1>
-      <p class="text-center pt-1">Компания, {{ vacancies.count }} вакансий</p>
+      <p class="text-center pt-1">Компания, {{ vacancies_count }} вакансий</p>
       <div class="row mt-5">
         <div class="col-12 col-lg-8 offset-lg-2 m-auto">
           {% for vacancy in vacancies %}

@@ -8,12 +8,12 @@
     <div class="row mt-5">
       <div class="col-12 col-lg-2">
         <div class="pl-3 mb-5">
-          <p><a href="{{ referrer }}">Назад</a></p>
+          <p><a href="{{ request.META.HTTP_REFERER }}">Назад</a></p>
         </div>
       </div>
       <div class="col-12 col-lg-8">
         <section class="pl-3">
-          <a href="#"><img src="{% get_static_prefix %}{{ vacancy.company.logo }}" width="130" height="80" alt=""></a>
+          <a href="#"><img src="{{ vacancy.company.logo.url }}" width="130" height="80" alt=""></a>
           <div class="d-flex align-items-baseline align-content-baseline">
             <h1 class="h2 mt-4 font-weight-bold" >{{ vacancy.title }}</h1>
             <p class="m-0 pl-3">{{ vacancy.salary_min }} – {{ vacancy.salary_max }} Р</p>
@@ -24,22 +24,27 @@
             <p>{{ vacancy.description }}
             </p>
           </div>
-          <form action="/echo" class="card mt-4 mb-3">
+          {{ form.non_field_errors }}
+          <form action="{% url 'send_vacancy' id=vacancy.id %}" method="post" class="card mt-4 mb-3">
+            {% csrf_token %}
             <div class="card-body mx-3">
               <p class="h5 mt-3 font-weight-normal">Отозваться на вакансию</p>
               <div class="form-group">
-                <label class="mb-1 mt-2" for="userName">Вас зовут</label>
-                <input class="form-control" type="text" placeholder="" id="userName">
+                {{ form.written_username.errors }}
+                <label class="mb-1 mt-2" for="{{ form.written_username.id_for_label }}">Вас зовут</label>
+                {{ form.written_username }}
               </div>
               <div class="form-group">
-                <label class="mb-1" for="userPhone">Ваш телефон</label>
-                <input class="form-control" type="tel" placeholder="" id="userPhone">
+                {{ form.written_phone.errors }}
+                <label class="mb-1" for="{{ form.written_phone.id_for_label }}">Ваш телефон</label>
+                {{ form.written_phone }}
               </div>
               <div class="form-group">
-                <label class="mb-1" for="userMsg" >Сопроводительное письмо</label>
-                <textarea class="form-control" rows="8" id="userMsg"></textarea>
+                {{ form.written_cover_letter.errors }}
+                <label class="mb-1" for="{{ form.written_cover_letter.id_for_label }}" >Сопроводительное письмо</label>
+                {{ form.written_cover_letter }}
               </div>
-              <input type="submit" class="btn btn-primary mt-4 mb-2" value="Записаться на пробный урок">
+              <input type="submit" class="btn btn-primary mt-4 mb-2" value="Оставить отзыв">
             </div>
           </form>
         </section>
