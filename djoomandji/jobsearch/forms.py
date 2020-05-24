@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Application, Company, Vacancy, Resume
 
@@ -30,27 +31,28 @@ class ApplicationForm(forms.ModelForm):
 
     def save(self, request, id):
         Application.objects.create(
-            user = request.user,
-            vacancy = Vacancy.objects.get(id=id),
-            written_username = self.cleaned_data['written_username'],
-            written_phone = self.cleaned_data['written_phone'],
-            written_cover_letter = self.cleaned_data['written_cover_letter'],
+            user=request.user,
+            vacancy=Vacancy.objects.get(id=id),
+            written_username=self.cleaned_data['written_username'],
+            written_phone=self.cleaned_data['written_phone'],
+            written_cover_letter=self.cleaned_data['written_cover_letter'],
         )
+
 
 class LoginForm(forms.Form):
     email = forms.CharField(
         max_length=100,
         required=True,
         widget=forms.EmailInput(attrs={
-            'class':"form-control",
-            'id':"inputEmail",
+            'class': "form-control",
+            'id': "inputEmail",
         })
     )
     password = forms.CharField(
         required=True,
         widget=forms.PasswordInput(attrs={
-            'class':"form-control",
-            'id':"inputPassword",
+            'class': "form-control",
+            'id': "inputPassword",
         })
     )
 
@@ -60,43 +62,43 @@ class SigupForm(forms.Form):
         max_length=100,
         required=True,
         widget=forms.TextInput(attrs={
-            'class':"form-control",
-            'id':"inputUsername",
+            'class': "form-control",
+            'id': "inputUsername",
         }),
     )
     first_name = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={
-            'class':"form-control",
-            'id':"inputFirstName",
+            'class': "form-control",
+            'id': "inputFirstName",
         }),
     )
     last_name = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={
-            'class':"form-control",
-            'id':"inputLastName",
+            'class': "form-control",
+            'id': "inputLastName",
         }),
     )
     email = forms.CharField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class':"form-control",
-            'id':"inputEmail",
+            'class': "form-control",
+            'id': "inputEmail",
         }),
     )
     password = forms.CharField(
         required=True,
         widget=forms.PasswordInput(attrs={
-            'class':"form-control",
-            'id':"inputPassword",
+            'class': "form-control",
+            'id': "inputPassword",
         }),
     )
     repeat_password = forms.CharField(
         required=True,
         widget=forms.PasswordInput(attrs={
-            'class':"form-control",
-            'id':"InputRepeatPassword",
+            'class': "form-control",
+            'id': "InputRepeatPassword",
         }),
     )
 
@@ -121,8 +123,8 @@ class SigupForm(forms.Form):
         auth = authenticate(**self.cleaned_data)
         return auth
 
-class CompanyForm(forms.ModelForm):
 
+class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ('name', 'location', 'description', 'employee_count',)
@@ -145,13 +147,14 @@ class CompanyForm(forms.ModelForm):
                 'id': "companyTeam",
             })
         }
+
     def save(self, request):
         if len(request.FILES) != 0:
             logo = "/company_images/" + str(request.FILES['logo'])
         else:
             try:
-                logo =  Company.objects.get(owner=request.user).logo
-            except:
+                logo = Company.objects.get(owner=request.user).logo
+            except ObjectDoesNotExist:
                 logo = None
         obj, created = Company.objects.update_or_create(
             owner=request.user,
@@ -164,8 +167,8 @@ class CompanyForm(forms.ModelForm):
             },
         )
 
-class ResumeForm(forms.ModelForm):
 
+class ResumeForm(forms.ModelForm):
     class Meta:
         model = Resume
         fields = (
@@ -230,47 +233,46 @@ class ResumeForm(forms.ModelForm):
         )
 
 
-
 class VacancyForm(forms.ModelForm):
-
     class Meta:
         model = Vacancy
         fields = ('title', 'specialty', 'skills', 'description', 'salary_min', 'salary_max',)
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': "form-control",
-                'id':"vacancyTitle",
+                'id': "vacancyTitle",
             }),
             'specialty': forms.Select(attrs={
                 'class': "form-control",
-                'id':"userSpecialization",
+                'id': "userSpecialization",
             }),
             'skills': forms.Textarea(attrs={
                 'class': "form-control",
-                'id':"vacancySkills",
+                'id': "vacancySkills",
                 'rows': "3",
             }),
             'description': forms.Textarea(attrs={
                 'class': "form-control",
-                'id':"vacancyDescription",
+                'id': "vacancyDescription",
                 'rows': "13",
 
             }),
             'salary_min': forms.NumberInput(attrs={
                 'class': "form-control",
-                'id':"vacancySalaryMin",
+                'id': "vacancySalaryMin",
             }),
             'salary_max': forms.NumberInput(attrs={
                 'class': "form-control",
-                'id':"vacancySalaryMax",
+                'id': "vacancySalaryMax",
             }),
         }
+
     def save(self, request, id):
         company = Company.objects.get(owner=request.user)
         obj, created = Vacancy.objects.update_or_create(
             id=id,
             defaults={
-                'title': self.cleaned_data  ['title'],
+                'title': self.cleaned_data['title'],
                 'specialty': self.cleaned_data['specialty'],
                 'company': company,
                 'skills': self.cleaned_data['skills'],

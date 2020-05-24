@@ -1,12 +1,12 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.views import View
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate,login
-from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
-from jobsearch.models import Specialty, Company, Vacancy, Application
+from .models import Specialty, Company, Vacancy
 from .forms import ApplicationForm, LoginForm, SigupForm, CompanyForm
 from .forms import VacancyForm, ResumeForm
 
@@ -16,33 +16,35 @@ class MainView(View):
         try:
             specialyties = Specialty.objects.all()
             companies = Company.objects.all()
-        except:
+        except ObjectDoesNotExist:
             raise Http404("Такого не существует")
         return render(request, 'jobsearch/index.html', context={
             'specialyties': specialyties,
             'companies': companies,
         })
 
+
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         query = request.GET.get('s')
         if query:
-            object = Vacancy.objects.filter(Q(title__contains = query)|Q(skills__contains=query))
-            object_count = object.count()
+            vac = Vacancy.objects.filter(Q(title__contains=query) | Q(skills__contains=query))
+            object_count = vac.count()
         else:
-            object = None
+            vac = None
             object_count = 0
         return render(request, 'jobsearch/search.html', context={
-            'vacancies': object,
+            'vacancies': vac,
             'vacancy_count': object_count,
         })
+
 
 class VacanciesView(View):
     def get(self, request, *args, **kwargs):
         title = "Все вакансии"
         try:
             vacancies = Vacancy.objects.all()
-        except:
+        except ObjectDoesNotExist:
             raise Http404('Нет ни одной вакансии')
         return render(request, 'jobsearch/vacancies.html', context={
             'title': title,
@@ -56,7 +58,7 @@ class VacanciesSpesialView(View):
         try:
             title = Specialty.objects.get(code=code)
             vacancies = Vacancy.objects.filter(specialty=title)
-        except:
+        except ObjectDoesNotExist:
             raise Http404('Такой страницы не существует')
         return render(request, 'jobsearch/vacancies.html', context={
             'title': title,
@@ -81,7 +83,7 @@ class VacancyView(View):
         try:
             vacancy = Vacancy.objects.get(id=id)
             form = ApplicationForm()
-        except:
+        except ObjectDoesNotExist:
             raise Http404('Такой вакансии нет')
         return render(request, 'jobsearch/vacancie.html', context={
             'vacancy': vacancy,
@@ -94,8 +96,7 @@ class VacancySendView(View):
         form = ApplicationForm(request.POST)
         if form.is_valid():
             form.save(request, id)
-            return render(request, 'jobsearch/sent.html', context={
-        })
+            return render(request, 'jobsearch/sent.html', context={})
 
 
 class MyCompanyView(View):
@@ -106,7 +107,7 @@ class MyCompanyView(View):
                 'form': form,
                 'logo': request.user.company.logo,
             })
-        except:
+        except ObjectDoesNotExist:
             return render(request, 'jobsearch/company-create.html', context={})
 
     def post(self, request, *args, **kwargs):
@@ -141,7 +142,7 @@ class MyVacanciesView(View):
     def get(self, request, *args, **kwargs):
         try:
             vacancies = Vacancy.objects.filter(company=request.user.company)
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect('/mycompany/')
         return render(request, 'jobsearch/vacancy-list.html', context={
             'vacancies': vacancies,
@@ -184,10 +185,8 @@ class OneMyVacancyView(View):
             return HttpResponseRedirect('/mycompany/vacancies')
         return render(request, 'jobsearch/vacancy-edit.html', context={
             'form': form,
-            'vacancy': vacancy,
-            'applications_count': applications.count(),
-            'applications': applications,
         })
+
 
 class ResumeView(View):
     def get(self, request, *args, **kwargs):
@@ -196,7 +195,7 @@ class ResumeView(View):
             return render(request, 'jobsearch/resume-edit.html', context={
                 'form': form,
             })
-        except:
+        except ObjectDoesNotExist:
             return render(request, 'jobsearch/resume-create.html', context={})
 
     def post(self, request, *args, **kwargs):
@@ -207,6 +206,7 @@ class ResumeView(View):
         return render(request, 'jobsearch/resume-edit.html', context={
             'form': form,
         })
+
 
 class ResumeNewView(View):
     def get(self, request, *args, **kwargs):

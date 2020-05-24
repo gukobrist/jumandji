@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 
+
 class Company(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
@@ -13,6 +14,7 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
+
 class Specialty(models.Model):
     code = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
@@ -20,6 +22,7 @@ class Specialty(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class Vacancy(models.Model):
     title = models.CharField(max_length=100)
@@ -34,6 +37,7 @@ class Vacancy(models.Model):
     def __str__(self):
         return self.title
 
+
 class Application(models.Model):
     written_username = models.CharField(max_length=100)
     written_phone = models.IntegerField()
@@ -43,7 +47,6 @@ class Application(models.Model):
 
     def __str__(self):
         return self.written_username
-
 
 
 class Resume(models.Model):
