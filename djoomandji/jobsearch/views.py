@@ -4,9 +4,11 @@ from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login
 from django.contrib import messages
+from django.db.models import Q
 
 from jobsearch.models import Specialty, Company, Vacancy, Application
-from .forms import ApplicationForm, LoginForm, SigupForm, CompanyForm, VacancyForm
+from .forms import ApplicationForm, LoginForm, SigupForm, CompanyForm
+from .forms import VacancyForm, ResumeForm
 
 
 class MainView(View):
@@ -21,6 +23,19 @@ class MainView(View):
             'companies': companies,
         })
 
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('s')
+        if query:
+            object = Vacancy.objects.filter(Q(title__contains = query)|Q(skills__contains=query))
+            object_count = object.count()
+        else:
+            object = None
+            object_count = 0
+        return render(request, 'jobsearch/search.html', context={
+            'vacancies': object,
+            'vacancy_count': object_count,
+        })
 
 class VacanciesView(View):
     def get(self, request, *args, **kwargs):
@@ -174,6 +189,41 @@ class OneMyVacancyView(View):
             'applications': applications,
         })
 
+class ResumeView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            form = ResumeForm(instance=request.user.resume.get(user=request.user))
+            return render(request, 'jobsearch/resume-edit.html', context={
+                'form': form,
+            })
+        except:
+            return render(request, 'jobsearch/resume-create.html', context={})
+
+    def post(self, request, *args, **kwargs):
+        form = ResumeForm(request.POST)
+        if form.is_valid():
+            form.save(request)
+            return HttpResponseRedirect('/myresume')
+        return render(request, 'jobsearch/resume-edit.html', context={
+            'form': form,
+        })
+
+class ResumeNewView(View):
+    def get(self, request, *args, **kwargs):
+        form = ResumeForm()
+        return render(request, 'jobsearch/resume-edit.html', context={
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = ResumeForm(request.POST)
+        if form.is_valid():
+            form.save(request)
+            return HttpResponseRedirect('/myresume/new')
+        return render(request, 'jobsearch/resume-edit.html', context={
+            'form': form,
+        })
+
 
 class VacancyApplicationsView(View):
     def get(self, request, id, *args, **kwargs):
@@ -217,7 +267,6 @@ class SignupView(View):
     def post(self, request, *args, **kwargs):
         form = SigupForm(request.POST)
         if form.is_valid():
-            print(1)
             user = form.save()
             if user is not None:
                 login(request, user)

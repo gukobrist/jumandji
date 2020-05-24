@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.utils import timezone
 
-from .models import Application, Company, Vacancy
+from .models import Application, Company, Vacancy, Resume
 
 
 class ApplicationForm(forms.ModelForm):
@@ -164,6 +164,73 @@ class CompanyForm(forms.ModelForm):
             },
         )
 
+class ResumeForm(forms.ModelForm):
+
+    class Meta:
+        model = Resume
+        fields = (
+            'name', 'surname', 'status', 'status', 'salary', 'specialty', 'grade',
+            'education', 'expirience', 'portfolio',
+        )
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': "form-control",
+                'id': "userName",
+            }),
+            'surname': forms.TextInput(attrs={
+                'class': "form-control",
+                'id': "userSurname",
+            }),
+            'status':  forms.Select(attrs={
+                'class': "form-control",
+                'id': "userReady",
+            }),
+            'salary': forms.NumberInput(attrs={
+                'class': "form-control",
+                'id': "userSalary",
+            }),
+            'specialty': forms.Select(attrs={
+                'class': "form-control",
+                'id': "userSpecialization",
+            }),
+            'grade': forms.Select(attrs={
+                'class': "form-control",
+                'id': "userQualification",
+            }),
+            'education': forms.Textarea(attrs={
+                'class': "form-control",
+                'id': "userEducation",
+                'rows': "4",
+            }),
+            'expirience': forms.Textarea(attrs={
+                'class': "form-control",
+                'id': "userExperience",
+                'rows': "4",
+            }),
+            'portfolio': forms.TextInput(attrs={
+                'class': "form-control",
+                'id': "userPortfolio",
+            }),
+        }
+
+    def save(self, request):
+        obj, created = Resume.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'name': self.cleaned_data['name'],
+                'surname': self.cleaned_data['surname'],
+                'status': self.cleaned_data['status'],
+                'salary': self.cleaned_data['salary'],
+                'specialty': self.cleaned_data['specialty'],
+                'grade': self.cleaned_data['grade'],
+                'education': self.cleaned_data['education'],
+                'expirience': self.cleaned_data['expirience'],
+                'portfolio': self.cleaned_data['portfolio'],
+            },
+        )
+
+
+
 class VacancyForm(forms.ModelForm):
 
     class Meta:
@@ -203,7 +270,7 @@ class VacancyForm(forms.ModelForm):
         obj, created = Vacancy.objects.update_or_create(
             id=id,
             defaults={
-                'title': self.cleaned_data['title'],
+                'title': self.cleaned_data  ['title'],
                 'specialty': self.cleaned_data['specialty'],
                 'company': company,
                 'skills': self.cleaned_data['skills'],
