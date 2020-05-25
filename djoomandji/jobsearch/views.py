@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Specialty, Company, Vacancy
@@ -13,13 +13,10 @@ from .forms import VacancyForm, ResumeForm
 
 class MainView(View):
     def get(self, request, *args, **kwargs):
-        try:
-            specialyties = Specialty.objects.all()
-            companies = Company.objects.all()
-        except ObjectDoesNotExist:
-            raise Http404("Такого не существует")
+        specialties = Specialty.objects.all().annotate(specialties_count=Count('vacancies'))
+        companies = Company.objects.all().annotate(companies_count=Count('vacancies'))
         return render(request, 'jobsearch/index.html', context={
-            'specialyties': specialyties,
+            'specialties': specialties,
             'companies': companies,
         })
 
