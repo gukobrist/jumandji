@@ -25,13 +25,13 @@ class SearchView(View):
     def get(self, request, *args, **kwargs):
         query = request.GET.get('s')
         if query:
-            vac = Vacancy.objects.filter(Q(title__contains=query) | Q(skills__contains=query))
-            object_count = vac.count()
+            vacancies_search_results = Vacancy.objects.filter(Q(title__contains=query) | Q(skills__contains=query))
+            object_count = vacancies_search_results.count()
         else:
-            vac = None
+            vacancies_search_results = None
             object_count = 0
         return render(request, 'jobsearch/search.html', context={
-            'vacancies': vac,
+            'vacancies': vacancies_search_results,
             'vacancy_count': object_count,
         })
 
@@ -39,10 +39,7 @@ class SearchView(View):
 class VacanciesView(View):
     def get(self, request, *args, **kwargs):
         title = "Все вакансии"
-        try:
-            vacancies = Vacancy.objects.all()
-        except ObjectDoesNotExist:
-            raise Http404('Нет ни одной вакансии')
+        vacancies = Vacancy.objects.all()
         return render(request, 'jobsearch/vacancies.html', context={
             'title': title,
             'vacancies': vacancies,
@@ -52,11 +49,8 @@ class VacanciesView(View):
 
 class VacanciesSpesialView(View):
     def get(self, request, code, *args, **kwargs):
-        try:
-            title = Specialty.objects.get(code=code)
-            vacancies = Vacancy.objects.filter(specialty=title)
-        except ObjectDoesNotExist:
-            raise Http404('Такой страницы не существует')
+        title = Specialty.objects.get(code=code)
+        vacancies = Vacancy.objects.filter(specialty=title)
         return render(request, 'jobsearch/vacancies.html', context={
             'title': title,
             'vacancies': vacancies,
